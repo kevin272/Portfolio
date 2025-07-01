@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, forwardRef } from 'react';
 import { gsap } from 'gsap';
 
 interface DoodleCardProps {
@@ -10,25 +10,26 @@ interface DoodleCardProps {
   size?: 'small' | 'medium' | 'large' | 'wide' | 'tall' | 'auto';
 }
 
-const DoodleCard: React.FC<DoodleCardProps> = ({
+const DoodleCard = forwardRef<HTMLDivElement, DoodleCardProps>(({
   children,
   className = '',
   hoverEffect = 'lift',
   onClick,
   variant = 'default',
   size = 'medium'
-}) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+}, ref) => {
+  const internalRef = useRef<HTMLDivElement>(null);
+  const cardRef = ref || internalRef;
 
   const getVariantClasses = () => {
     switch (variant) {
       case 'colorful':
-        return 'bg-gradient-to-br from-doodle-yellow via-doodle-pink to-doodle-purple border-doodle-ink dark:border-white';
+        return 'bg-gradient-to-br from-gray-200/50 via-gray-300/50 to-gray-400/50 dark:from-gray-700/50 dark:via-gray-600/50 dark:to-gray-500/50 border-gray-300 dark:border-gray-600';
       case 'outlined':
-        return 'bg-transparent border-2 border-doodle-ink dark:border-white';
+        return 'bg-transparent border-2 border-gray-700 dark:border-gray-500';
       case 'default':
       default:
-        return 'bg-doodle-paper dark:bg-doodle-paper-dark border-2 border-doodle-ink dark:border-white';
+        return 'bg-white/90 dark:bg-gray-800/90 border-2 border-gray-300 dark:border-gray-600';
     }
   };
 
@@ -51,17 +52,13 @@ const DoodleCard: React.FC<DoodleCardProps> = ({
   };
 
   useEffect(() => {
-    const card = cardRef.current;
+    const card = (cardRef as React.RefObject<HTMLDivElement>).current;
     if (!card || hoverEffect === 'none') return;
 
-    // Optimize GSAP for better performance
     gsap.set(card, { force3D: true });
 
     const handleMouseEnter = () => {
       switch (hoverEffect) {
-        case 'lift':
-          // Already handled by CSS for better performance
-          break;
         case 'wiggle':
           gsap.to(card, {
             rotation: 2,
@@ -104,7 +101,6 @@ const DoodleCard: React.FC<DoodleCardProps> = ({
       }
     };
 
-    // Only add event listeners for effects that need JavaScript
     if (hoverEffect === 'wiggle' || hoverEffect === 'bounce') {
       card.addEventListener('mouseenter', handleMouseEnter);
       card.addEventListener('mouseleave', handleMouseLeave);
@@ -123,7 +119,7 @@ const DoodleCard: React.FC<DoodleCardProps> = ({
         card.removeEventListener('click', handleClick);
       }
     };
-  }, [hoverEffect, onClick]);
+  }, [hoverEffect, onClick, cardRef]);
 
   return (
     <div
@@ -140,6 +136,8 @@ const DoodleCard: React.FC<DoodleCardProps> = ({
       {children}
     </div>
   );
-};
+});
+
+DoodleCard.displayName = 'DoodleCard';
 
 export default DoodleCard;

@@ -34,7 +34,7 @@ const ScrollProgress = () => {
     });
 
     // Pulse effect when scrolling
-    let scrollTimeout: NodeJS.Timeout;
+    let scrollTimeout: number;
     const handleScroll = () => {
       gsap.to(fill, {
         boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)',

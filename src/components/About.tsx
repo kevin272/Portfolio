@@ -1,119 +1,59 @@
-import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React from 'react';
 import { Code, Palette, Zap, Heart, Star, Coffee } from 'lucide-react';
-import AnimatedText from './common/AnimatedText';
 import DoodleCard from './common/DoodleCard';
 import SectionContainer from './common/SectionContainer';
-import GradientText from './common/GradientText';
+import AnimatedSection from './common/AnimatedSection';
 import { PERSONAL_INFO, TECH_STACK, ABOUT_FEATURES } from '../constants';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const About = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const techStackRef = useRef<HTMLDivElement>(null);
-  const doodleElementsRef = useRef<HTMLDivElement>(null);
-
-  // Map icon names to actual icon components
-  const iconMap = {
-    Code,
-    Palette,
-    Zap,
-    Heart
-  };
-
-  useEffect(() => {
-    const techStackElement = techStackRef.current;
-    const doodleElements = doodleElementsRef.current;
-    
-    if (!techStackElement || !doodleElements) return;
-
-    // Animate doodle background elements
-    gsap.to(doodleElements.children, {
-      rotation: 360,
-      duration: 20,
-      repeat: -1,
-      ease: 'none',
-      stagger: 2
-    });
-
-    // Tech stack hover animations with doodle style
-    techStackElement.querySelectorAll('.tech-tag').forEach((tag) => {
-      tag.addEventListener('mouseenter', () => {
-        gsap.to(tag, {
-          scale: 1.15,
-          y: -8,
-          rotation: Math.random() * 10 - 5,
-          duration: 0.3,
-          ease: 'elastic.out(1, 0.5)'
-        });
-      });
-
-      tag.addEventListener('mouseleave', () => {
-        gsap.to(tag, {
-          scale: 1,
-          y: 0,
-          rotation: 0,
-          duration: 0.3,
-          ease: 'elastic.out(1, 0.5)'
-        });
-      });
-    });
-  }, []);
+  const iconMap = { Code, Palette, Zap, Heart };
 
   return (
-    <SectionContainer id="about" >
-      <div ref={sectionRef} className="relative">
-        {/* Doodle Background Elements */}
-        <div ref={doodleElementsRef} className="absolute inset-0 pointer-events-none opacity-10">
-          <Star className="absolute top-10 left-10 w-8 h-8 text-doodle-yellow" />
-          <Coffee className="absolute top-20 right-20 w-6 h-6 text-doodle-orange" />
-          <Heart className="absolute bottom-20 left-20 w-7 h-7 text-doodle-pink" />
-          <Code className="absolute bottom-10 right-10 w-9 h-9 text-doodle-blue" />
-          
-          {/* Hand-drawn circles */}
-          <div className="absolute top-1/4 left-1/3 w-16 h-16 border-3 border-doodle-green rounded-full opacity-30"></div>
-          <div className="absolute bottom-1/3 right-1/4 w-20 h-20 border-3 border-doodle-purple rounded-doodle opacity-25"></div>
-        </div>
+    <SectionContainer id="about" className="doodle-section paper-texture">
+      {/* Doodle Background Elements */}
+      <div className="absolute inset-0 pointer-events-none opacity-10">
+        <Star className="absolute top-10 left-10 w-8 h-8 text-gray-600 dark:text-gray-400" />
+        <Coffee className="absolute top-20 right-20 w-6 h-6 text-gray-500 dark:text-gray-500" />
+        <Heart className="absolute bottom-20 left-20 w-7 h-7 text-gray-600 dark:text-gray-400" />
+        <Code className="absolute bottom-10 right-10 w-9 h-9 text-gray-700 dark:text-gray-300" />
+      </div>
 
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 font-doodle">
-            <GradientText>
-              <AnimatedText
-                text={PERSONAL_INFO.aboutTitle}
-                animation="splitChars"
-                trigger="#about"
-                className="doodle-sketch"
-              />
-            </GradientText>
-          </h2>
-          
-        </div>
+      <div className="relative space-y-16">
+        {/* Header */}
+        <AnimatedSection animation="chars" className="text-center">
+          <DoodleCard size="wide" className="p-8 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-gray-300 dark:border-gray-600">
+            <h2 className="doodle-heading-xl mb-6">
+              <span className="bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent doodle-sketch">
+                {PERSONAL_INFO.aboutTitle}
+              </span>
+            </h2>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              {PERSONAL_INFO.subtitle}
+            </p>
+          </DoodleCard>
+        </AnimatedSection>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center mb-16">
+        {/* Main Content Grid */}
+        <AnimatedSection animation="slideIn" stagger={0.3} className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* About Content */}
-          <DoodleCard
-            className="p-8 space-y-6 bg-doodle-paper/90 dark:bg-doodle-paper-dark/90"
-            hoverEffect="lift"
-          >
-            <h3 className="text-2xl md:text-3xl font-semibold text-doodle-ink dark:text-white font-doodle">
+          <DoodleCard size="large" className="p-8 space-y-6 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-gray-300 dark:border-gray-600">
+            <h3 className="doodle-heading-lg text-gray-800 dark:text-gray-200">
               Crafting Digital Experiences
             </h3>
             
-            <div className="space-y-4 text-doodle-ink-light dark:text-gray-300 leading-relaxed">
+            <div className="space-y-4 text-gray-600 dark:text-gray-300 leading-relaxed">
               {PERSONAL_INFO.aboutDescription.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
 
-            <div ref={techStackRef} className="flex flex-wrap gap-3">
-              {TECH_STACK.map((tech, index) => (
+            <div className="flex flex-wrap gap-3">
+              {TECH_STACK.map((tech) => (
                 <DoodleCard
                   key={tech}
-                  className="tech-tag px-4 py-2 bg-doodle-blue/20 text-doodle-blue dark:text-doodle-blue-light text-sm font-medium cursor-pointer"
-                  hoverEffect="bounce"
-                  variant="outlined"
+                  size="small"
+                  className="tech-tag px-4 py-2 bg-gray-600/20 text-gray-700 dark:text-gray-300 text-sm font-medium cursor-pointer border-gray-400 dark:border-gray-500"
                 >
                   {tech}
                 </DoodleCard>
@@ -122,83 +62,49 @@ const About = () => {
           </DoodleCard>
 
           {/* Profile Image Section */}
-          <DoodleCard
-            className="relative p-8 bg-gradient-to-br from-doodle-yellow/20 via-doodle-pink/20 to-doodle-purple/20"
-            hoverEffect="wiggle"
-            variant="colorful"
-          >
-            <div className="text-center text-doodle-ink dark:text-white">
-              <div className="w-32 h-32 bg-doodle-blue/20 backdrop-blur-sm rounded-doodle mx-auto flex items-center justify-center mb-6 border-4 border-doodle-blue">
-                <Code size={48} className="text-doodle-blue" />
-              </div>
-              <h4 className="text-xl font-bold font-doodle mb-2">Passionate Developer</h4>
-              <p className="text-doodle-ink-light dark:text-gray-300">
+          <DoodleCard size="large" className="relative p-8 bg-gradient-to-br from-gray-200/50 via-gray-300/50 to-gray-400/50 dark:from-gray-700/50 dark:via-gray-600/50 dark:to-gray-500/50 border-gray-300 dark:border-gray-600">
+            <div className="text-center text-gray-800 dark:text-gray-200">
+              <DoodleCard size="medium" className="w-32 h-32 bg-gray-600/20 backdrop-blur-sm mx-auto flex items-center justify-center mb-6 border-gray-500 dark:border-gray-400">
+                <Code size={48} className="text-gray-700 dark:text-gray-300" />
+              </DoodleCard>
+              <h4 className="doodle-heading-md mb-2">Passionate Developer</h4>
+              <p className="text-gray-600 dark:text-gray-400">
                 Creating amazing digital experiences with code and creativity
               </p>
             </div>
           </DoodleCard>
-        </div>
+        </AnimatedSection>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <AnimatedSection animation="scale" stagger={0.1} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {ABOUT_FEATURES.map((feature, index) => {
             const IconComponent = iconMap[feature.icon as keyof typeof iconMap];
-            const colors = ['doodle-blue', 'doodle-green', 'doodle-purple', 'doodle-orange'];
+            const colors = ['gray-600', 'gray-700', 'gray-500', 'gray-800'];
             const color = colors[index % colors.length];
             
             return (
               <DoodleCard
                 key={feature.title}
-                className="p-6 bg-doodle-paper/80 dark:bg-doodle-paper-dark/80 text-center group"
-                hoverEffect="lift"
+                size="medium"
+                className="p-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-center border-gray-300 dark:border-gray-600"
               >
                 <div className="mb-4">
-                  <div className={`w-16 h-16 bg-${color}/20 rounded-doodle mx-auto flex items-center justify-center border-3 border-${color} group-hover:animate-wiggle`}>
-                    <IconComponent size={32} className={`text-${color}`} />
-                  </div>
+                  <DoodleCard size="small" className={`w-16 h-16 bg-${color}/20 mx-auto flex items-center justify-center border-${color} dark:border-gray-400`}>
+                    <IconComponent size={32} className={`text-${color} dark:text-gray-300`} />
+                  </DoodleCard>
                 </div>
                 
-                <h4 className="text-lg font-semibold text-doodle-ink dark:text-white mb-2 font-doodle">
+                <h4 className="doodle-heading-sm mb-2 text-gray-800 dark:text-gray-200">
                   {feature.title}
                 </h4>
                 
-                <p className="text-doodle-ink-light dark:text-gray-400 text-sm leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                   {feature.description}
                 </p>
               </DoodleCard>
             );
           })}
-        </div>
-
-        {/* Fun Stats */}
-        <div className="mt-16">
-          <DoodleCard
-            className="p-8 bg-gradient-to-r from-doodle-yellow/30 via-doodle-pink/30 to-doodle-purple/30 text-center"
-            variant="colorful"
-            hoverEffect="bounce"
-          >
-            <h3 className="text-2xl font-bold text-doodle-ink dark:text-white mb-6 font-doodle">
-              Fun Facts About Me
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <div className="text-3xl font-bold text-doodle-blue mb-2">☕</div>
-                <p className="text-doodle-ink dark:text-white font-medium">Coffee Lover</p>
-                <p className="text-sm text-doodle-ink-light dark:text-gray-300">5+ cups per day</p>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-doodle-green mb-2">🚀</div>
-                <p className="text-doodle-ink dark:text-white font-medium">Projects Built</p>
-                <p className="text-sm text-doodle-ink-light dark:text-gray-300">5+ and counting</p>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-doodle-purple mb-2">🎨</div>
-                <p className="text-doodle-ink dark:text-white font-medium">Design Enthusiast</p>
-                <p className="text-sm text-doodle-ink-light dark:text-gray-300">Pixel perfectionist</p>
-              </div>
-            </div>
-          </DoodleCard>
-        </div>
+        </AnimatedSection>
       </div>
     </SectionContainer>
   );

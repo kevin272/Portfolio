@@ -13,14 +13,14 @@ import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollProgress from './components/ScrollProgress';
-import Squares from './components/Squares';
 import SmoothScroll from './components/SmoothScroll';
+import Particles from './components/Squares';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
 
 function AppContent() {
-  const { theme } = useTheme();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     // Initialize smooth scrolling
@@ -61,17 +61,20 @@ function AppContent() {
         </div>
       </div>
 
+      <SmoothScroll>
       <div className="min-h-screen bg-gradient-to-br from-light-50 via-light-100 to-light-200 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 text-light-900 dark:text-white font-inter relative transition-all duration-300">
-        <div className="fixed inset-0 z-0">
-          <Squares 
-            speed={0.5} 
-            squareSize={40} 
-            direction="diagonal" 
-            borderColor={theme === 'dark' ? '#ffffff' : '#000000'} 
-            hoverFillColor={theme === 'dark' ? '#ffffff' : '#000000'} 
-          />
+        <div className=" fixed inset-0  z-0">
+          <Particles
+          isDark={isDark}
+    particleCount={1000}
+    particleSpread={5}
+    speed={0.1}
+    particleBaseSize={100}
+    moveParticlesOnHover={true}
+    alphaParticles={false}
+    disableRotation={false}
+  />
         </div>
-        <SmoothScroll />
         <ScrollProgress />
         <Navigation />
         <main className="relative overflow-hidden">
@@ -84,6 +87,8 @@ function AppContent() {
         </main>
         <Footer />
       </div>
+      </SmoothScroll >
+
     </>
   );
 }

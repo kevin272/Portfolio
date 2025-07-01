@@ -1,97 +1,40 @@
+// components/SmoothScroll.tsx
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollSmoother } from 'gsap/ScrollSmoother';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-const SmoothScroll = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
+const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const wrapper = wrapperRef.current;
+    const content = contentRef.current;
 
-    let ctx = gsap.context(() => {
-      // Smooth scroll implementation
-      let smoother = gsap.to({}, {
-        duration: 0.8,
-        ease: "power3.out"
+    if (!wrapper || !content) return;
+
+    const ctx = gsap.context(() => {
+      ScrollSmoother.create({
+        wrapper,
+        content,
+        smooth: 1.5,
+        normalizeScroll: true,
+        effects: true,
+        smoothTouch: 0.1,
       });
-
-      // Custom smooth scroll for anchor links
-      const links = document.querySelectorAll('a[href^="#"]');
-      links.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const targetId = link.getAttribute('href')?.substring(1);
-          const target = document.getElementById(targetId || '');
-          
-          if (target) {
-            gsap.to(window, {
-              duration: 1.8,
-              scrollTo: { 
-                y: target, 
-                offsetY: 80,
-                autoKill: false
-              },
-              ease: "power3.inOut"
-            });
-          }
-        });
-      });
-
-      // Enhanced scroll experience with momentum
-      let isScrolling = false;
-      let scrollTimeout: number;
-
-      const handleScroll = () => {
-        if (!isScrolling) {
-          isScrolling = true;
-          document.body.classList.add('is-scrolling');
-        }
-
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          isScrolling = false;
-          document.body.classList.remove('is-scrolling');
-        }, 150);
-      };
-
-      window.addEventListener('scroll', handleScroll, { passive: true });
-
-      return () => {
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }, container);
+    }, wrapper);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <div ref={containerRef} className="smooth-scroll-container">
-      <style>{`
-        .smooth-scroll-container {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: -1;
-        }
-        
-        body.is-scrolling {
-          cursor: grabbing;
-        }
-        
-        html {
-          scroll-behavior: auto;
-        }
-        
-        * {
-          scroll-behavior: auto;
-        }
-      `}</style>
+    <div id="smooth-wrapper" ref={wrapperRef}>
+      <div id="smooth-content" ref={contentRef}>
+        {children}
+      </div>
     </div>
   );
 };

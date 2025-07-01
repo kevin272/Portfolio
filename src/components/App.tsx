@@ -13,18 +13,16 @@ import Projects from '../components/Projects';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import ScrollProgress from '../components/ScrollProgress';
-import Squares from '../components/Squares';
 import SmoothScroll from '../components/SmoothScroll';
+import Particles from '../components/Squares';
 
 // Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin, ScrollSmoother);
 
 function AppContent() {
   const { isDark } = useTheme();
 
   useEffect(() => {
-    // Initialize smooth scrolling
-    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
     
     // Page load animation
     const tl = gsap.timeline();
@@ -47,7 +45,6 @@ function AppContent() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
@@ -61,19 +58,22 @@ function AppContent() {
         </div>
       </div>
 
+      <SmoothScroll>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-white font-inter relative transition-all duration-300">
         {/* Squares Background with reduced opacity */}
         <div className="fixed inset-0 z-0">
-          <Squares
-            direction="diagonal"
-            speed={0.3}
-            borderColor={isDark ? 'rgba(156, 163, 175, 0.05)' : 'rgba(107, 114, 128, 0.05)'}
-            squareSize={80}
-            hoverFillColor={isDark ? 'rgba(75, 85, 99, 0.1)' : 'rgba(156, 163, 175, 0.1)'}
-          />
+          <Particles
+    particleColors={['#ffffff', '#ffffff']}
+    particleCount={500}
+    particleSpread={10}
+    speed={0.1}
+    particleBaseSize={100}
+    moveParticlesOnHover={false}
+    alphaParticles={false}
+    disableRotation={false}
+  />
         </div>
         
-        <SmoothScroll />
         <ScrollProgress />
         <Navigation />
         <main className="relative overflow-hidden z-10">
@@ -86,6 +86,8 @@ function AppContent() {
         </main>
         <Footer />
       </div>
+      </SmoothScroll>
+
     </>
   );
 }

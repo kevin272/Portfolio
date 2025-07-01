@@ -65,6 +65,10 @@ For the Contact form submission to work, you need these enviroment variables whi
 - VITE_SERVICE_ID
 - VITE_TEMPLATE_ID
 
+The sent mail will appear as: 
+![Semt_Mail](https://i.imgur.com/9Z4opcS.png)
+
+
 ## 🚧 Deployment
 
 Basic use of github pages can be used. I have already implemented deploy commands as below.

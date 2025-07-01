@@ -34,8 +34,38 @@ A modern, animated portfolio built with **React**, **Tailwind CSS**, **GSAP**, a
 
 ## 🚧 Development
 
-To use this you can fork this project or clone it. Edit the constants.ts file with your own data. 
+To use this you can fork this project or clone it. Edit the constants.ts file with your own data. Here is a snippet of the code:
 
+```ts
+export const SOCIAL_LINKS = [
+  {
+    name: "GitHub",
+    url: "https://github.com/kevin272",
+    icon: "Github"
+  },
+  {
+    name: "LinkedIn", 
+    url: "https://linkedin.com/in/kebinmalla",
+    icon: "Linkedin"
+  },
+  {
+    name: "Email",
+    url: "mailto:mallakebin@gmail.com",
+    icon: "Mail"
+  },
+  {
+    name: "Twitter",
+    url: "https://twitter.com/DevilKevin2",
+    icon: "Twitter"
+  }
+];
+```
+For the Contact form submission to work, you need these enviroment variables which can be generated via [emailjs.com](https://www.emailjs.com): 
+- VITE_PUBLIC_KEY
+- VITE_SERVICE_ID
+- VITE_TEMPLATE_ID
+
+## 🚧 Deployment
 
 Basic use of github pages can be used. I have already implemented deploy commands as below.
 
@@ -63,6 +93,10 @@ npm run deploy
 ### 🔹 Landing Page
 ![Landing Page](https://i.imgur.com/dVo15Vx.png)
 
+### 🔹 Dark Mode
+![Dark_mode](https://i.imgur.com/k7TM6g4.png)
+
+
 ### 🔹 Projects Section
 ![Projects Section](https://i.imgur.com/KWTeNPC.png)
 
@@ -82,7 +116,7 @@ This project is for personal use and not open for commercial redistribution.
 
 * Inspired by modern interactive portfolios and doodle-style web design
 * Icons by [Lucide](https://lucide.dev/)
-* Special thanks to the open-source community 🚀
+* Special thanks to the open-source community and bolt.new for the doodle css🚀
 
 ```
 

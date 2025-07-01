@@ -13,7 +13,7 @@ A modern, animated portfolio built with **React**, **Tailwind CSS**, **GSAP**, a
 - 🌙 Light/Dark theme support with custom UI
 - 🎨 Unique hand-drawn and doodle-styled components
 - 🧩 Modular and component-based architecture (React)
-- 🌀 Parallax & background particle effects
+- 🌀 Background particle effects
 - 🛠 Built and optimized with **Vite** + **Tailwind CSS**
 - 📦 Deployed via **GitHub Pages**
 
@@ -33,6 +33,9 @@ A modern, animated portfolio built with **React**, **Tailwind CSS**, **GSAP**, a
 ---
 
 ## 🚧 Development
+
+To use this you can fork this project or clone it. Edit the constants.ts file with your own data. 
+
 
 Basic use of github pages can be used. I have already implemented deploy commands as below.
 

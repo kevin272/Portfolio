@@ -1,7 +1,3 @@
-Here’s a clean and **vague but professional `README.md`** tailored for your portfolio project:
-
----
-
 
 # 🚀 Personal Portfolio
 

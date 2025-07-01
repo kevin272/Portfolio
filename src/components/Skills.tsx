@@ -62,20 +62,7 @@ const Skills = () => {
                       {skill.name}
                     </h4>
 
-                    <div className="mt-2 flex justify-center">
-                      <div className="flex space-x-1">
-                        {[...Array(5)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-2 h-2 rounded-full ${
-                              i < Math.floor(skill.level / 20)
-                                ? 'bg-gray-600 dark:bg-gray-400'
-                                : 'bg-gray-300 dark:bg-gray-600'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                    
                   </DoodleCard>
                 ))}
               </AnimatedSection>

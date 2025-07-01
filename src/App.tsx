@@ -15,6 +15,7 @@ import Footer from './components/Footer';
 import ScrollProgress from './components/ScrollProgress';
 import SmoothScroll from './components/SmoothScroll';
 import Particles from './components/Squares';
+import { Toaster } from 'react-hot-toast';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, TextPlugin);
@@ -60,7 +61,7 @@ function AppContent() {
           <p className="text-light-900 dark:text-white text-xl font-medium">Loading...</p>
         </div>
       </div>
-
+      <Navigation />
       <SmoothScroll>
       <div className="min-h-screen bg-gradient-to-br from-light-50 via-light-100 to-light-200 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 text-light-900 dark:text-white font-inter relative transition-all duration-300">
         <div className=" fixed inset-0  z-0">
@@ -76,7 +77,7 @@ function AppContent() {
   />
         </div>
         <ScrollProgress />
-        <Navigation />
+        
         <main className="relative overflow-hidden">
           <Hero />
           <About />
@@ -97,6 +98,7 @@ function App() {
   return (
     <ThemeProvider>
       <AppContent />
+      <Toaster position="top-right" reverseOrder={false} />
     </ThemeProvider>
   );
 }

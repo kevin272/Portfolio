@@ -5,11 +5,21 @@ import { Send, Star, Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
 import { CONTACT_INFO, CONTACT_FORM, PERSONAL_INFO } from '../constants';
 import DoodleCard from './common/DoodleCard';
 import SectionContainer from './common/SectionContainer';
+import emailjs from 'emailjs-com';
+import toast from 'react-hot-toast';
+import { useTheme } from '../contexts/ThemeContext';
+import "../index.css";
+
+
+const publicKey = import.meta.env.VITE_PUBLIC_KEY;
+const serviceId = import.meta.env.VITE_SERVICE_ID;
+const templateId = import.meta.env.VITE_TEMPLATE_ID;
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Contact = () => {
-  const sectionRef = useRef<HTMLElement>(null);
+  const { isDark } = useTheme(); 
+  const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const contactInfoRef = useRef<HTMLDivElement>(null);
@@ -31,6 +41,8 @@ const Contact = () => {
     MessageCircle
   };
 
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
@@ -38,23 +50,42 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    
-    // Success animation
-    const submitButton = formRef.current?.querySelector('.submit-button');
-    if (submitButton) {
-      gsap.to(submitButton, {
-        scale: 0.95,
-        duration: 0.1,
-        yoyo: true,
-        repeat: 1,
-        ease: 'power2.inOut'
-      });
-    }
-  };
+ const handleSubmit = (e: React.FormEvent) => {
+    const loadingToast = toast.loading('Sending your message...');
+
+  e.preventDefault();
+
+  emailjs.send(
+    serviceId!,
+    templateId!,
+    {
+      name: formData.name,
+      email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+    },
+        publicKey!,
+
+  )
+  .then(() => {
+    toast.success('Message sent successfully!', { id: loadingToast });
+    setFormData({ name: '', email: '', subject: '', message: '' });
+  })
+  .catch((error) => {
+    toast.error('Failed to send message. Try again later.', { id: loadingToast });
+  });
+
+  const submitButton = formRef.current?.querySelector('.submit-button');
+  if (submitButton) {
+    gsap.to(submitButton, {
+      scale: 0.95,
+      duration: 0.1,
+      yoyo: true,
+      repeat: 1,
+      ease: 'power2.inOut'
+    });
+  }
+};
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -132,6 +163,7 @@ const Contact = () => {
     };
   }, []);
 
+  // Detect dark mode using the 'dark' class on the html element (TailwindCSS convention)
   return (
     <SectionContainer id="contact" className="doodle-section paper-texture">
       {/* Reduced opacity doodle background elements */}
@@ -305,22 +337,22 @@ const Contact = () => {
             </DoodleCard>
           </div>
 
-          <DoodleCard size="wide" className="overflow-hidden border-gray-300 dark:border-gray-600">
-            <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d220.80431848850318!2d85.33252347260708!3d27.69044049779537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa0fc53efb5683825%3A0x6ed732e3b430f80c!2sSajhaBiz!5e0!3m2!1sen!2snp!4v1751250148977!5m2!1sen!2snp" 
-                width="100%" 
-                height="100%" 
-                style={{border: 0}} 
-                allowFullScreen={true}
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Location Map"
-              />
-            </div>
-          </DoodleCard>
+<DoodleCard size="wide" className="overflow-hidden border-gray-300 dark:border-gray-600">
+  <div className="mapbox">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d220.80431848850318!2d85.33252347260708!3d27.69044049779537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa0fc53efb5683825%3A0x6ed732e3b430f80c!2sSajhaBiz!5e0!3m2!1sen!2snp!4v1751250148977!5m2!1sen!2snp"
+         width="100%"
+      height="100%"
+      allowFullScreen={true}
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+      title="Location Map"
+      />
+  </div>
+</DoodleCard>
+
         </div>
-      </div>
+        </div>
     </SectionContainer>
   );
 };

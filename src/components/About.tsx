@@ -97,10 +97,7 @@ const About = () => {
                 <h4 className="doodle-heading-sm mb-2 text-gray-800 dark:text-gray-200">
                   {feature.title}
                 </h4>
-                
-                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                  {feature.description}
-                </p>
+              
               </DoodleCard>
             );
           })}

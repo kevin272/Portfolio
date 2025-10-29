@@ -1,56 +1,111 @@
-import React from 'react';
-import { Star, Code, Palette, Github } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ExternalLink, Github, Layers } from 'lucide-react';
 import { PROJECTS } from '../constants';
-import DoodleCard from './common/DoodleCard';
-import SectionContainer from './common/SectionContainer';
-import AnimatedSection from './common/AnimatedSection';
-import ProjectCard from './common/ProjectCard';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Projects = () => {
-  const featuredProjects = PROJECTS.filter(project => project.featured);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.projects-heading', {
+        y: 30,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' }
+      });
+
+      gsap.from('.project-card', {
+        y: 60,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+        stagger: 0.15,
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 65%' }
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <SectionContainer id="projects" className="doodle-section paper-texture">
-      {/* Doodle Background Elements */}
-      <div className="absolute inset-0 pointer-events-none opacity-10">
-        <Star className="absolute top-10 left-10 w-8 h-8 text-gray-600 dark:text-gray-400 animate-pulse" />
-        <Code className="absolute top-20 right-20 w-6 h-6 text-gray-700 dark:text-gray-300 animate-wiggle" />
-        <Palette className="absolute bottom-20 left-20 w-7 h-7 text-gray-500 dark:text-gray-500 animate-doodle-bounce" />
-        <Github className="absolute bottom-10 right-10 w-9 h-9 text-gray-600 dark:text-gray-400 animate-pulse" />
+    <section id="projects" ref={sectionRef} className="relative mx-auto mt-24 max-w-6xl px-6">
+      <div className="projects-heading text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">
+        Selected work
       </div>
-      
-      <div className="relative z-10">
-        <AnimatedSection animation="chars" className="text-center mb-16">
-          <DoodleCard size="wide" className="p-8 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-gray-300 dark:border-gray-600">
-            <h2 className="doodle-heading-xl mb-6">
-              <span className="bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent doodle-sketch">
-                Featured Projects
-              </span>
-            </h2>
-            
-            <p className="text-gray-600 dark:text-gray-300 text-xl max-w-3xl mx-auto">
-              A selection of my recent work that showcases my skills and passion for creating 
-              exceptional digital experiences.
-            </p>
-          </DoodleCard>
-        </AnimatedSection>
+      <h2 className="projects-heading mt-4 text-3xl font-semibold text-white sm:text-4xl">
+        Interfaces and systems built with care
+      </h2>
+      <p className="projects-heading mt-4 max-w-2xl text-base text-slate-300">
+        Each project pairs refined UI with resilient architecture. Here’s a taste of the platforms, tools, and products I’ve
+        helped bring to life.
+      </p>
 
-        <AnimatedSection animation="scale" stagger={0.2} className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {featuredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </AnimatedSection>
+      <div className="mt-12 grid gap-8 lg:grid-cols-2">
+        {PROJECTS.map((project) => (
+          <article
+            key={project.id}
+            className="project-card group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur"
+          >
+            <div className="relative h-56 overflow-hidden">
+              <img
+                src={project.image}
+                alt={project.name}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-70" />
+              <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
+                <Layers size={14} />
+                {project.status}
+              </div>
+            </div>
 
-        {/* View All Projects Button */}
-        <AnimatedSection animation="fadeUp" className="text-center">
-          <DoodleCard size="medium" className="inline-block border-gray-400 dark:border-gray-500">
-            <button className="px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white text-lg font-semibold rounded-lg transition-all duration-300">
-              View All Projects
-            </button>
-          </DoodleCard>
-        </AnimatedSection>
+            <div className="flex flex-col gap-4 p-6 text-white">
+              <div>
+                <h3 className="text-xl font-semibold">{project.name}</h3>
+                <p className="mt-2 text-sm text-slate-300">{project.description}</p>
+                <p className="mt-3 text-sm text-slate-400">{project.longDescription}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-xs text-emerald-100">
+                {project.technologies.map((tech) => (
+                  <span key={tech} className="rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
+                >
+                  <Github size={16} />
+                  Source
+                </a>
+                {project.live && (
+                  <a
+                    href={project.live}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-gradient-to-r hover:from-emerald-500 hover:to-cyan-500 hover:text-white"
+                  >
+                    <ExternalLink size={16} />
+                    Visit site
+                  </a>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
-    </SectionContainer>
+    </section>
   );
 };
 

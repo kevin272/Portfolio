@@ -1,76 +1,100 @@
-import React from 'react';
-import SectionContainer from './common/SectionContainer';
-import DoodleCard from './common/DoodleCard';
-import AnimatedSection from './common/AnimatedSection';
-import { SKILL_CATEGORIES } from '../constants';
-import { Star, Sparkles, Heart, Zap } from 'lucide-react';
+import { useEffect, useRef, type ComponentType } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import * as Icons from 'lucide-react';
+import { SKILL_GROUPS } from '../constants';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Skills = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.skills-heading', {
+        y: 30,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' }
+      });
+
+      gsap.from('.skill-card', {
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+        stagger: 0.12,
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 65%' }
+      });
+
+      gsap.utils.toArray<HTMLElement>('.skill-progress').forEach((bar) => {
+        const level = bar.dataset.level ? parseInt(bar.dataset.level, 10) : 0;
+        gsap.fromTo(
+          bar,
+          { width: 0 },
+          {
+            width: `${level}%`,
+            duration: 1.4,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: bar, start: 'top 80%' }
+          }
+        );
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <SectionContainer id="skills" className="doodle-section paper-texture">
-      {/* Doodle Background Elements */}
-      <div className="absolute inset-0 pointer-events-none opacity-10">
-        <Star className="absolute top-10 left-10 w-8 h-8 text-gray-600 dark:text-gray-400 animate-pulse" />
-        <Sparkles className="absolute top-20 right-20 w-6 h-6 text-gray-700 dark:text-gray-300 animate-wiggle" />
-        <Heart className="absolute bottom-20 left-20 w-7 h-7 text-gray-500 dark:text-gray-500 animate-doodle-bounce" />
-        <Zap className="absolute bottom-10 right-10 w-9 h-9 text-gray-600 dark:text-gray-400 animate-pulse" />
-      </div>
+    <section id="skills" ref={sectionRef} className="relative mx-auto mt-24 max-w-6xl px-6">
+      <div className="skills-heading text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">Skills</div>
+      <h2 className="skills-heading mt-4 text-3xl font-semibold text-white sm:text-4xl">Tools of the craft</h2>
+      <p className="skills-heading mt-4 max-w-2xl text-base text-slate-300">
+        Years of shipping products across startups and freelance engagements taught me how to balance polish with velocity. These
+        are the technologies and practices I rely on most.
+      </p>
 
-      <div className="relative z-10">
-        <AnimatedSection animation="chars" className="text-center mb-16">
-          <DoodleCard size="wide" className="p-8 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-gray-300 dark:border-gray-600">
-            <h2 className="doodle-heading-xl mb-6">
-              <span className="bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent doodle-sketch">
-                Skills & Technologies
-              </span>
-            </h2>
-            
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              A comprehensive toolkit of modern technologies and frameworks I use to build exceptional digital experiences
-            </p>
-          </DoodleCard>
-        </AnimatedSection>
+      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {SKILL_GROUPS.map((group) => {
+          const Icon = Icons[group.icon as keyof typeof Icons] as ComponentType<{ size?: number }>;
+          return (
+            <div
+              key={group.title}
+              className="skill-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur"
+            >
+              <div className="absolute -top-20 right-0 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
+              <div className="flex items-center gap-3 text-white">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-200">
+                  <Icon size={22} />
+                </span>
+                <div>
+                  <h3 className="text-lg font-semibold">{group.title}</h3>
+                  <p className="text-sm text-slate-300">{group.description}</p>
+                </div>
+              </div>
 
-        <div className="space-y-16">
-          {SKILL_CATEGORIES.map((category) => (
-            <div key={category.title}>
-              <AnimatedSection animation="fadeUp" className="text-center mb-12">
-                <DoodleCard size="medium" className="inline-block p-6 bg-gradient-to-r from-gray-200/50 via-gray-300/50 to-gray-400/50 dark:from-gray-700/50 dark:via-gray-600/50 dark:to-gray-500/50 backdrop-blur-sm border-gray-300 dark:border-gray-600">
-                  <h3 className="doodle-heading-lg mb-4 text-gray-800 dark:text-gray-200">
-                    {category.title}
-                  </h3>
-                  <div className="w-24 h-1 bg-gradient-to-r from-gray-600 to-gray-800 dark:from-gray-400 dark:to-gray-600 mx-auto rounded-full"></div>
-                </DoodleCard>
-              </AnimatedSection>
-
-              <AnimatedSection animation="scale" stagger={0.1} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-                {category.skills.map((skill) => (
-                  <DoodleCard 
-                    key={skill.name}
-                    size="small" 
-                    className="p-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-center group border-gray-300 dark:border-gray-600"
-                  >
-                    <div className="mb-3">
-                      <img
-                        src={skill.logo}
-                        alt={skill.name}
-                        className="w-12 h-12 object-contain mx-auto group-hover:scale-110 transition-transform duration-300"
+              <div className="mt-6 space-y-4">
+                {group.skills.map((skill) => (
+                  <div key={skill.name}>
+                    <div className="flex items-center justify-between text-sm text-slate-200">
+                      <span>{skill.name}</span>
+                      <span>{skill.level}%</span>
+                    </div>
+                    <div className="mt-2 h-2 rounded-full bg-white/10">
+                      <div
+                        className="skill-progress h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-500"
+                        data-level={skill.level}
                       />
                     </div>
-
-                    <h4 className="text-gray-800 dark:text-gray-200 font-semibold text-sm">
-                      {skill.name}
-                    </h4>
-
-                    
-                  </DoodleCard>
+                  </div>
                 ))}
-              </AnimatedSection>
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
-    </SectionContainer>
+    </section>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -14,14 +14,13 @@ const ScrollProgress = () => {
 
     if (!progress || !fill) return;
 
-    // Initial animation
-    gsap.fromTo(progress,
-      { scaleX: 0, transformOrigin: 'left' },
-      { scaleX: 1, duration: 0.8, ease: 'power2.out', delay: 1 }
+    const introTween = gsap.fromTo(
+      progress,
+      { y: -20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', delay: 0.4 }
     );
 
-    // Scroll progress animation
-    gsap.to(fill, {
+    const fillTween = gsap.to(fill, {
       scaleX: 1,
       transformOrigin: 'left',
       ease: 'none',
@@ -29,45 +28,25 @@ const ScrollProgress = () => {
         trigger: document.body,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.3
+        scrub: 0.4
       }
     });
 
-    // Pulse effect when scrolling
-    let scrollTimeout: number;
-    const handleScroll = () => {
-      gsap.to(fill, {
-        boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)',
-        duration: 0.2,
-        ease: 'power2.out'
-      });
-
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        gsap.to(fill, {
-          boxShadow: '0 0 0px rgba(59, 130, 246, 0)',
-          duration: 0.5,
-          ease: 'power2.out'
-        });
-      }, 150);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      introTween.kill();
+      fillTween.kill();
+      fillTween.scrollTrigger?.kill();
     };
   }, []);
 
   return (
     <div
       ref={progressRef}
-      className="fixed top-0 left-0 right-0 h-1 bg-dark-800 z-50"
+      className="pointer-events-none fixed inset-x-0 top-0 z-40 h-1.5 bg-slate-900/50 backdrop-blur-sm"
     >
       <div
         ref={fillRef}
-        className="h-full bg-gradient-to-r from-primary-500 to-secondary-500 transform scale-x-0"
+        className="h-full w-full origin-left scale-x-0 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500"
       />
     </div>
   );

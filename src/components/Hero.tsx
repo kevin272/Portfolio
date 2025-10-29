@@ -1,273 +1,155 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ComponentType } from 'react';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowDown, Download, Sparkles, Heart, Github, Linkedin, Mail, Twitter } from 'lucide-react';
-import AnimatedText from './common/AnimatedText';
-import DoodleButton from './common/DoodleButton';
-import DoodleCard from './common/DoodleCard';
-import { PERSONAL_INFO, SOCIAL_LINKS, IMAGES } from '../constants';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import * as Icons from 'lucide-react';
+import { ArrowRight, Download, Sparkles } from 'lucide-react';
+import { HERO_CONTENT, SOCIAL_LINKS } from '../constants';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollToPlugin);
 
 const Hero = () => {
-  const heroRef = useRef<HTMLElement>(null);
-  const socialRef = useRef<HTMLDivElement>(null);
-  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
-  const doodleElementsRef = useRef<HTMLDivElement>(null);
-
-  // Icon mapping for social links
-  const iconMap = {
-    Github,
-    Linkedin,
-    Mail,
-    Twitter
-  };
+  const heroRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const hero = heroRef.current;
-    const social = socialRef.current;
-    const scrollIndicator = scrollIndicatorRef.current;
-    const doodleElements = doodleElementsRef.current;
-
-    if (!hero || !social || !scrollIndicator || !doodleElements) return;
-
-    // Set initial states
-    gsap.set([social, scrollIndicator], { opacity: 0 });
-    gsap.set(doodleElements.children, { scale: 0, rotation: -180 });
-
-    // Main entrance animation with doodle style
-    const tl = gsap.timeline({ delay: 2 });
-    
-    // Animate doodle elements
-    tl.to(doodleElements.children, {
-      duration: 1.5,
-      scale: 1,
-      rotation: 0,
-      ease: 'elastic.out(1, 0.5)',
-      stagger: 0.2
-    })
-    .to(social.children, {
-      duration: 1,
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      ease: 'back.out(1.7)',
-      stagger: 0.15
-    }, '-=0.8')
-    .to(scrollIndicator, {
-      duration: 1.2,
-      y: 0,
-      opacity: 1,
-      ease: 'bounce.out',
-    }, '-=0.6');
-
-    // Continuous doodle animations
-    gsap.to(doodleElements.children, {
-      y: -15,
-      duration: 3,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-      stagger: 0.3
-    });
-
-    // Scroll indicator wiggle
-    gsap.to(scrollIndicator, {
-      rotation: 5,
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut'
-    });
-
-    // Social links doodle hover
-    social.querySelectorAll('a').forEach((link, index) => {
-      link.addEventListener('mouseenter', () => {
-        gsap.to(link, { 
-          scale: 1.2, 
-          rotation: Math.random() * 20 - 10, 
-          y: -8,
-          duration: 0.4, 
-          ease: 'elastic.out(1, 0.5)' 
+    const ctx = gsap.context(() => {
+      gsap.from('.hero-eyebrow', { y: 24, opacity: 0, duration: 0.8, ease: 'power3.out' });
+      gsap.from('.hero-headline', { y: 40, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.2 });
+      gsap.from('.hero-description', { y: 32, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.35 });
+      gsap.from('.hero-actions button', {
+        y: 24,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        stagger: 0.1,
+        delay: 0.45
+      });
+      gsap.utils.toArray<HTMLElement>('.hero-stat').forEach((card, index) => {
+        gsap.from(card, {
+          y: 30,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          delay: 0.6 + index * 0.1
         });
       });
-      link.addEventListener('mouseleave', () => {
-        gsap.to(link, { 
-          scale: 1, 
-          rotation: 0, 
-          y: 0,
-          duration: 0.4, 
-          ease: 'elastic.out(1, 0.5)' 
-        });
-      });
-    });
+    }, heroRef);
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
-  const handleResumeDownload = () => {
-    window.open(PERSONAL_INFO.resumeLink, '_blank');
-  };
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('.hero-orb').forEach((orb, index) => {
+        gsap.to(orb, {
+          x: `random(-40, 40)`,
+          y: `random(-30, 30)`,
+          scale: gsap.utils.random(0.9, 1.05),
+          rotate: gsap.utils.random(-12, 12),
+          duration: gsap.utils.random(10, 16),
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: index * 0.6
+        });
+      });
+    }, backgroundRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section ref={heroRef} id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden paper-texture">
-      {/* Doodle Background Elements */}
-      <div ref={doodleElementsRef} className="absolute inset-0 pointer-events-none">
-        {/* Hand-drawn shapes */}
-        <div className="absolute top-20 left-10 w-20 h-20 border-4 border-doodle-blue rounded-doodle animate-doodle-bounce opacity-20"></div>
-        <div className="absolute top-40 right-20 w-16 h-16 border-3 border-doodle-green rounded-full animate-wiggle opacity-30"></div>
-        <div className="absolute bottom-40 left-20 w-24 h-24 border-4 border-doodle-purple rounded-doodle-alt animate-float opacity-25"></div>
-        <div className="absolute bottom-20 right-10 w-18 h-18 border-3 border-doodle-orange rounded-full animate-doodle-bounce opacity-20"></div>
-        
-        {/* Doodle stars */}
-        <Sparkles className="absolute top-32 right-32 w-8 h-8 text-doodle-yellow animate-pulse" />
-        <Heart className="absolute bottom-32 left-32 w-6 h-6 text-doodle-pink animate-pulse" />
-        
-        {/* Hand-drawn lines */}
-        <svg className="absolute top-0 left-0 w-full h-full opacity-10" viewBox="0 0 1200 800">
-          <path 
-            d="M100,200 Q300,100 500,200 T900,200" 
-            stroke="currentColor" 
-            strokeWidth="3" 
-            fill="none" 
-            className="text-doodle-blue hand-drawn"
-          />
-          <path 
-            d="M200,600 Q400,500 600,600 T1000,600" 
-            stroke="currentColor" 
-            strokeWidth="3" 
-            fill="none" 
-            className="text-doodle-green hand-drawn"
-          />
-        </svg>
+    <section id="home" className="relative isolate overflow-hidden pt-40 pb-32">
+      <div ref={backgroundRef} className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="hero-orb absolute -left-32 top-10 h-72 w-72 rounded-full bg-emerald-500/30 blur-3xl" />
+        <div className="hero-orb absolute -right-10 top-52 h-80 w-80 rounded-full bg-cyan-500/20 blur-[120px]" />
+        <div className="hero-orb absolute bottom-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-violet-500/10 blur-[140px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.08),_transparent_55%)]" />
       </div>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="space-y-8">
-          {/* Main Content Card */}
-          <DoodleCard className="p-8 md:p-12 bg-doodle-paper/90 dark:bg-doodle-paper-dark/90 backdrop-blur-sm">
-            <div className="space-y-6">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight font-doodle">
-                <AnimatedText
-                  text={PERSONAL_INFO.heroGreeting}
-                  animation="splitChars"
-                  delay={2}
-                  className="text-doodle-blue doodle-sketch"
-                />
-                <br />
-                <AnimatedText
-                  text={PERSONAL_INFO.name}
-                  animation="splitChars"
-                  delay={2.5}
-                  className="block text-doodle-ink dark:text-white doodle-wiggle"
-                />
-              </h1>
-              
-              <div className="text-xl md:text-2xl text-doodle-ink-light dark:text-gray-300 font-medium min-h-[3rem]">
-                <AnimatedText
-                  text={PERSONAL_INFO.subtitle}
-                  animation="typewriter"
-                  delay={3.5}
-                />
+      <div ref={heroRef} className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+        <div className="relative">
+          <div className="hero-eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-lg dark:border-white/10">
+            <Sparkles size={16} />
+            {HERO_CONTENT.role}
+          </div>
+          <h1 className="hero-headline text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+            {HERO_CONTENT.tagline}
+          </h1>
+          <p className="hero-description mt-6 max-w-2xl text-lg leading-relaxed text-slate-300">
+            {HERO_CONTENT.description}
+          </p>
+          <div className="hero-actions mt-10 flex flex-wrap gap-4">
+            {HERO_CONTENT.callToActions.map((action) => (
+              <button
+                key={action.label}
+                onClick={() => {
+                  if (action.external) {
+                    window.open(action.href, '_blank', 'noopener,noreferrer');
+                    return;
+                  }
+
+                  gsap.to(window, { duration: 1, scrollTo: { y: action.href, offsetY: 96 }, ease: 'power3.out' });
+                }}
+                className={`group inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all ${
+                  action.variant === 'primary'
+                    ? 'bg-white text-slate-900 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-cyan-500 hover:text-white'
+                    : 'border border-white/20 text-white hover:border-white/40 hover:bg-white/10'
+                }`}
+              >
+                {action.label}
+                {action.variant === 'primary' ? <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" /> : <Download size={18} />}
+              </button>
+            ))}
+          </div>
+          <div className="mt-14 flex flex-wrap gap-6">
+            {HERO_CONTENT.stats.map((stat) => (
+              <div
+                key={stat.label}
+                className="hero-stat flex min-w-[140px] flex-col rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-white backdrop-blur"
+              >
+                <span className="text-3xl font-semibold">{stat.value}</span>
+                <span className="mt-1 text-sm text-slate-300">{stat.label}</span>
               </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
+          <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-b from-white/10 to-white/0" />
+          <div className="flex flex-col gap-6 text-white">
+            <div>
+              <h2 className="text-xl font-semibold">{HERO_CONTENT.name}</h2>
+              <p className="mt-2 text-sm text-slate-300">Kathmandu, Nepal</p>
             </div>
 
-            <AnimatedText
-              text={PERSONAL_INFO.heroDescription}
-              className="text-lg md:text-xl text-doodle-ink dark:text-gray-300 max-w-4xl mx-auto leading-relaxed block mt-6"
-              delay={4.5}
-            />
-
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-8 mt-8">
-              <div 
-                className="opacity-0"
-                style={{ 
-                  animation: 'fadeInUp 0.8s ease-out 5s forwards'
-                }}
-              >
-                <DoodleButton
-                  variant="primary"
-                  size="lg"
-                  icon={<Download size={24} />}
-                  onClick={handleResumeDownload}
-                  className="bg-doodle-yellow hover:bg-doodle-yellow-light"
-                >
-                  Download Resume
-                </DoodleButton>
-              </div>
-              
-              <div 
-                className="opacity-0"
-                style={{ 
-                  animation: 'fadeInUp 0.8s ease-out 5.3s forwards'
-                }}
-              >
-                <DoodleButton
-                  variant="outline"
-                  size="lg"
-                  onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="border-doodle-blue text-doodle-blue hover:bg-doodle-blue hover:text-white"
-                >
-                  Explore My Work
-                </DoodleButton>
-              </div>
-            </div>
-          </DoodleCard>
-
-          {/* Social Links */}
-          <div ref={socialRef} className="flex items-center justify-center space-x-6">
-            {SOCIAL_LINKS.map((social, index) => {
-              const IconComponent = iconMap[social.icon as keyof typeof iconMap];
-              
-              return (
-                <DoodleCard
-                  key={social.name}
-                  className="p-4 bg-doodle-paper/80 dark:bg-doodle-paper-dark/80 backdrop-blur-sm hover:bg-doodle-blue hover:text-white transition-all duration-300"
-                >
+            <div className="flex flex-wrap gap-3">
+              {SOCIAL_LINKS.map((link) => {
+                const Icon = Icons[link.icon as keyof typeof Icons] as ComponentType<{ size?: number }>;
+                return (
                   <a
-                    href={social.url}
+                    key={link.name}
+                    href={link.url}
                     target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.name}
-                    className="block"
+                    rel="noreferrer"
+                    className="flex flex-1 items-center justify-between rounded-2xl border border-white/10 px-4 py-3 text-sm text-white transition hover:border-white/40 hover:bg-white/10"
                   >
-                    <IconComponent size={28} />
+                    <span>{link.name}</span>
+                    <Icon size={18} />
                   </a>
-                </DoodleCard>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+              <p>
+                Currently focused on launching collaborative SaaS tools and real-time platforms. Open to freelance and full-time
+                opportunities.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Enhanced Scroll Indicator */}
-      <div ref={scrollIndicatorRef} className="absolute bottom-12 left-1/2 transform -translate-x-1/2 z-20">
-        <DoodleCard 
-          className="p-4 bg-doodle-paper/90 dark:bg-doodle-paper-dark/90 backdrop-blur-sm cursor-pointer"
-          onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-        >
-          <div className="flex flex-col items-center space-y-3 text-doodle-ink dark:text-white">
-            <span className="text-sm font-medium tracking-wider uppercase font-doodle">Scroll Down</span>
-            <div className="w-px h-8 bg-doodle-blue"></div>
-            <ArrowDown size={24} className="animate-bounce" />
-          </div>
-        </DoodleCard>
-      </div>
-
-      <style >{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </section>
   );
 };

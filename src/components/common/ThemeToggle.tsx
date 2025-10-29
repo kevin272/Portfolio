@@ -1,127 +1,38 @@
-import React, { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { gsap } from 'gsap';
-import { Sun, Moon } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-import DoodleCard from './DoodleCard';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme, isDark } = useTheme();
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const sunRef = useRef<HTMLDivElement>(null);
-  const moonRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<gsap.core.Timeline>();
-
-  useEffect(() => {
-    const toggle = toggleRef.current;
-    const sun = sunRef.current;
-    const moon = moonRef.current;
-
-    if (!toggle || !sun || !moon) return;
-
-    // Create timeline with doodle-style animations
-    const tl = gsap.timeline({ paused: true });
-    timelineRef.current = tl;
-
-    // Set initial positions
-    gsap.set(sun, { 
-      scale: 1, 
-      rotation: 0,
-      opacity: 1,
-      transformOrigin: 'center'
-    });
-    gsap.set(moon, { 
-      scale: 0, 
-      rotation: -180,
-      opacity: 0,
-      transformOrigin: 'center'
-    });
-
-    // Doodle-style animation timeline
-    tl.to(sun, {
-      scale: 0,
-      rotation: 360,
-      opacity: 0,
-      duration: 0.4,
-      ease: 'elastic.in(1, 0.5)'
-    })
-    .to(moon, {
-      scale: 1,
-      rotation: 0,
-      opacity: 1,
-      duration: 0.4,
-      ease: 'elastic.out(1, 0.5)'
-    }, 0.2);
-
-    // Set initial state based on theme
-    if (isDark) {
-      tl.progress(1);
-    } else {
-      tl.progress(0);
-    }
-
-    return () => {
-      tl.kill();
-    };
-  }, []); // Only run once on mount
-
-  useEffect(() => {
-    // Update animation when theme changes
-    const tl = timelineRef.current;
-    if (!tl) return;
-
-    if (isDark) {
-      tl.play();
-    } else {
-      tl.reverse();
-    }
-  }, [isDark]);
+  const { isDark, toggleTheme } = useTheme();
+  const knobRef = useRef<HTMLSpanElement>(null);
 
   const handleToggle = () => {
-    const toggle = toggleRef.current;
-    if (!toggle) return;
+    const knob = knobRef.current;
+    if (!knob) return;
 
-    // Doodle-style click animation
-    gsap.to(toggle, {
-      scale: 0.8,
-      rotation: Math.random() * 20 - 10,
-      duration: 0.1,
-      yoyo: true,
-      repeat: 1,
-      ease: 'power2.inOut',
-      onComplete: () => {
-        toggleTheme();
-      }
-    });
+    gsap.timeline({ defaults: { ease: 'power2.out', duration: 0.4 } })
+      .to(knob, { rotate: '+=180', scale: 0.85 })
+      .to(knob, { scale: 1 }, '<0.1');
+
+    toggleTheme();
   };
 
   return (
-    <DoodleCard 
-      className="p-3 bg-doodle-paper/90 dark:bg-doodle-paper-dark/90 backdrop-blur-sm cursor-pointer"
-      hoverEffect="wiggle"
+    <button
       onClick={handleToggle}
+      className="relative flex h-11 w-20 items-center rounded-full bg-slate-900/80 p-1 text-slate-200 shadow-lg shadow-slate-950/30 backdrop-blur dark:bg-white/80 dark:text-slate-900"
+      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
-      <button
-        ref={toggleRef}
-        className="relative w-6 h-6 focus:outline-none"
-        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      <span
+        ref={knobRef}
+        className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-500 text-slate-900 transition-[margin] duration-300 ease-out dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dark:text-emerald-300 ${
+          isDark ? 'ml-9' : 'ml-0'
+        }`}
       >
-        <div className="relative w-full h-full">
-          <div
-            ref={sunRef}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Sun size={20} className="text-doodle-yellow" />
-          </div>
-          <div
-            ref={moonRef}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Moon size={20} className="text-doodle-blue" />
-          </div>
-        </div>
-      </button>
-    </DoodleCard>
+        {isDark ? <Moon size={18} /> : <Sun size={18} />}
+      </span>
+    </button>
   );
 };
 

@@ -1,235 +1,199 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Menu, X, Home, User, Code, GraduationCap, Briefcase, Mail } from 'lucide-react';
-import { NAVIGATION_ITEMS } from '../constants';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import * as Icons from 'lucide-react';
+import { Menu, X } from 'lucide-react';
+import { NAV_ITEMS, SOCIAL_LINKS } from '../constants';
 import ThemeToggle from './common/ThemeToggle';
-import DoodleCard from './common/DoodleCard';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const Navigation = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
-  const mobileButtonRef = useRef<HTMLButtonElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  // Icon mapping for navigation items
-  const iconMap = {
-    Home,
-    User,
-    Code,
-    GraduationCap,
-    Briefcase,
-    Mail
-  };
+  const linkListRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    const nav = navRef.current;
-    const mobileButton = mobileButtonRef.current;
-
-    if (!nav || !mobileButton) return;
-
-    // Initial animations with doodle style
-    gsap.fromTo(nav, 
-      { y: -100, opacity: 0, rotation: -5 },
-      { y: 0, opacity: 1, rotation: 0, duration: 1, ease: 'elastic.out(1, 0.5)', delay: 0.5 }
+    const triggers = NAV_ITEMS.map((item) =>
+      ScrollTrigger.create({
+        trigger: `#${item.id}`,
+        start: 'top center',
+        end: 'bottom center',
+        onEnter: () => setActiveSection(item.id),
+        onEnterBack: () => setActiveSection(item.id)
+      })
     );
 
-    gsap.fromTo(mobileButton,
-      { scale: 0, opacity: 0, rotation: -180 },
-      { scale: 1, opacity: 1, rotation: 0, duration: 0.8, ease: 'elastic.out(1, 0.5)', delay: 0.8 }
-    );
-
-    // Scroll-based navigation background
-    ScrollTrigger.create({
-      start: 'top -80',
+    const scrollTrigger = ScrollTrigger.create({
+      start: 'top top',
       end: 99999,
-      toggleClass: { className: 'nav-scrolled', targets: nav }
+      onUpdate: (self) => {
+        setScrolled(self.scroll() > 40);
+      }
     });
 
-    // Active section tracking
-    const handleScroll = () => {
-      const sections = NAVIGATION_ITEMS.map(item => document.getElementById(item.id));
-      const scrollPosition = window.scrollY + 100;
-
-      sections.forEach((section, index) => {
-        if (section) {
-          const { offsetTop, offsetHeight } = section;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(NAVIGATION_ITEMS[index].id);
-          }
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll);
+    const nav = navRef.current;
+    if (nav) {
+      gsap.fromTo(
+        nav,
+        { y: -80, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.1 }
+      );
+    }
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      triggers.forEach((trigger) => trigger.kill());
+      scrollTrigger.kill();
     };
   }, []);
 
   useEffect(() => {
-    const mobileMenu = mobileMenuRef.current;
-    if (!mobileMenu) return;
+    const indicator = indicatorRef.current;
+    const list = linkListRef.current;
 
-    if (isOpen) {
-      gsap.fromTo(mobileMenu,
-        { opacity: 0, scale: 0.8, rotation: -10 },
-        { opacity: 1, scale: 1, rotation: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' }
-      );
+    if (!indicator || !list) return;
 
-      gsap.fromTo(mobileMenu.querySelectorAll('.mobile-nav-item'),
-        { x: -50, opacity: 0, rotation: -10 },
-        { x: 0, opacity: 1, rotation: 0, duration: 0.4, ease: 'elastic.out(1, 0.5)', stagger: 0.1, delay: 0.2 }
-      );
-    }
-  }, [isOpen]);
+    const activeLink = list.querySelector<HTMLButtonElement>(`button[data-link='${activeSection}']`);
+    if (!activeLink) return;
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      gsap.to(window, {
-        duration: 1.5,
-        scrollTo: { y: element, offsetY: 80 },
-        ease: "power2.inOut"
-      });
-    }
+    const linkRect = activeLink.getBoundingClientRect();
+    const listRect = list.getBoundingClientRect();
+
+    gsap.to(indicator, {
+      x: linkRect.left - listRect.left,
+      width: linkRect.width,
+      duration: 0.4,
+      ease: 'power3.out'
+    });
+  }, [activeSection]);
+
+  const handleNavigate = (id: string) => {
     setIsOpen(false);
+    gsap.to(window, {
+      duration: 1,
+      ease: 'power3.out',
+      scrollTo: { y: `#${id}`, offsetY: 96 }
+    });
   };
 
-  const handleNavItemClick = (itemId: string) => {
-    // Button click animation with doodle style
-    const button = document.querySelector(`[data-nav="${itemId}"]`);
-    if (button) {
-      gsap.to(button, {
-        scale: 0.9,
-        rotation: Math.random() * 10 - 5,
-        duration: 0.1,
-        yoyo: true,
-        repeat: 1,
-        ease: 'power2.inOut'
-      });
-    }
-    scrollToSection(itemId);
-  };
+  const socialIcons = useMemo(() => SOCIAL_LINKS.slice(0, 2), []);
 
   return (
-    <>
-      {/* Desktop Navigation */}
-      <nav 
-        ref={navRef}
-        className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 hidden md:block transition-all duration-300"
+    <nav
+      ref={navRef}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out ${
+        scrolled ? 'py-3' : 'py-6'
+      }`}
+    >
+      <div
+        className={`mx-auto flex max-w-6xl items-center gap-6 rounded-2xl border border-white/10 px-6 transition-all duration-500 ease-out ${
+          scrolled
+            ? 'bg-slate-900/80 py-4 shadow-2xl shadow-slate-900/20 backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/70'
+            : 'bg-transparent py-4 backdrop-blur-sm'
+        }`}
       >
-        <DoodleCard className="px-6 py-3 bg-doodle-paper/90 dark:bg-doodle-paper-dark/90 backdrop-blur-md shadow-doodle dark:shadow-doodle-dark">
-          <div className="flex items-center space-x-1">
-            {NAVIGATION_ITEMS.map((item) => {
-              const IconComponent = iconMap[item.icon as keyof typeof iconMap];
-              
+        <button
+          className="flex items-center gap-3 text-lg font-semibold tracking-tight text-white dark:text-emerald-200"
+          onClick={() => handleNavigate('home')}
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 text-slate-900 shadow-lg shadow-emerald-500/30">
+            KM
+          </span>
+          Kebin Malla
+        </button>
+
+        <div className="ml-auto hidden items-center gap-8 md:flex">
+          <div ref={linkListRef} className="relative flex items-center gap-1">
+            <span
+              ref={indicatorRef}
+              className="pointer-events-none absolute left-0 h-8 rounded-full bg-white/10 dark:bg-emerald-400/20"
+              style={{ width: 0 }}
+            />
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                data-link={item.id}
+                onClick={() => handleNavigate(item.id)}
+                className={`nav-link relative z-10 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300 ${
+                  activeSection === item.id
+                    ? 'text-white dark:text-emerald-200'
+                    : 'text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-emerald-100'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {socialIcons.map((item) => {
+              const Icon = Icons[item.icon as keyof typeof Icons] as ComponentType<{ size?: number }>;
               return (
-                <button
-                  key={item.id}
-                  data-nav={item.id}
-                  onClick={() => handleNavItemClick(item.id)}
-                  className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 font-doodle ${
-                    activeSection === item.id
-                      ? 'text-white'
-                      : 'text-doodle-ink dark:text-gray-400 hover:text-doodle-blue dark:hover:text-white'
-                  }`}
-                  style={{
-                    borderRadius: activeSection === item.id ? '40% 60% 30% 70% / 50% 40% 60% 30%' : '0'
-                  }}
+                <a
+                  key={item.name}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-slate-200 transition-all hover:-translate-y-1 hover:border-white/20 hover:text-white dark:text-slate-200"
                 >
-                  {activeSection === item.id && (
-                    <div 
-                      className="absolute inset-0 bg-doodle-blue nav-active-bg" 
-                      style={{ borderRadius: '40% 60% 30% 70% / 50% 40% 60% 30%' }}
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center space-x-2">
-                    <IconComponent size={16} />
-                    <span>{item.label}</span>
-                  </span>
-                </button>
+                  <Icon size={18} />
+                </a>
               );
             })}
-            
-            {/* Theme Toggle */}
-            <div className="ml-4 pl-4 border-l-2 border-doodle-ink dark:border-white">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
-        </DoodleCard>
-      </nav>
+        </div>
 
-      {/* Mobile Navigation Button */}
-      <div className="fixed top-6 right-6 z-50 md:hidden flex items-center space-x-3">
-        <ThemeToggle />
-        <DoodleCard className="p-3 bg-doodle-paper/90 dark:bg-doodle-paper-dark/90 backdrop-blur-md shadow-doodle dark:shadow-doodle-dark">
-          <button
-            ref={mobileButtonRef}
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-doodle-ink dark:text-white"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </DoodleCard>
+        <button
+          className="ml-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 text-white transition-all md:hidden"
+          onClick={() => setIsOpen((prev) => !prev)}
+        >
+          {isOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
       {isOpen && (
-        <div
-          ref={mobileMenuRef}
-          className="fixed inset-0 bg-doodle-paper/95 dark:bg-doodle-paper-dark/95 backdrop-blur-md z-40 md:hidden paper-texture"
-        >
-          <div className="flex items-center justify-center h-full">
-            <div className="space-y-8">
-              {NAVIGATION_ITEMS.map((item, index) => {
-                const IconComponent = iconMap[item.icon as keyof typeof iconMap];
-                
-                return (
-                  <DoodleCard
-                    key={item.id}
-                    className="mobile-nav-item p-4 bg-doodle-paper/80 dark:bg-doodle-paper-dark/80"
-                    onClick={() => handleNavItemClick(item.id)}
-                    hoverEffect="wiggle"
-                  >
-                    <div className="flex items-center space-x-4 text-2xl font-medium text-doodle-ink dark:text-white font-doodle">
-                      <IconComponent size={32} />
-                      <span>{item.label}</span>
-                    </div>
-                  </DoodleCard>
-                );
-              })}
-            </div>
+        <div className="mx-auto mt-3 flex max-w-6xl flex-col gap-3 rounded-2xl border border-white/10 bg-slate-900/90 p-4 shadow-2xl shadow-slate-900/40 backdrop-blur md:hidden">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavigate(item.id)}
+              className={`w-full rounded-xl px-4 py-3 text-left text-base font-medium transition-all ${
+                activeSection === item.id
+                  ? 'bg-white/10 text-white'
+                  : 'text-slate-300 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+          <div className="mt-2 flex flex-wrap gap-3">
+            {SOCIAL_LINKS.map((item) => {
+              const Icon = Icons[item.icon as keyof typeof Icons] as ComponentType<{ size?: number }>;
+              return (
+                <a
+                  key={item.name}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm text-slate-200 transition hover:border-white/30 hover:text-white"
+                >
+                  <Icon size={18} />
+                  {item.name}
+                </a>
+              );
+            })}
+          </div>
+          <div className="pt-2">
+            <ThemeToggle />
           </div>
         </div>
       )}
-
-      <style >{`
-        .nav-scrolled {
-          transform: translateX(-50%) translateY(-5px) rotate(1deg);
-        }
-        
-        .nav-active-bg {
-          animation: navActiveSlide 0.5s ease-out;
-        }
-        
-        @keyframes navActiveSlide {
-          from {
-            transform: scale(0.8) rotate(-5deg);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1) rotate(0deg);
-            opacity: 1;
-          }
-        }
-      `}</style>
-    </>
+    </nav>
   );
 };
 
